@@ -1,0 +1,44 @@
+version: '3'
+networks:
+  allInOne:
+services:
+  php:
+    image: yiisoftware/yii2-php:7.4-apache
+    container_name: all_in_one_php
+    volumes:
+      - ~/.composer-docker/cache:/root/.composer/cache:delegated
+      - ./:/app:delegated
+    ports:
+      - '8000:80'
+    networks:
+      - allInOne
+  database: 
+    image: mysql:5.7.22
+    container_name: all_in_one_db
+    ports: 
+      - 3300:3306
+    environment:
+      MYSQL_DATABASE: all_in_one
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./.dbdata:/var/lib/mysql
+    networks:
+      - allInOne
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: all_in_one_phpmyadmin
+    links:
+      - database:db
+    ports:
+      - 8080:80
+    environment:
+      - PMA_HOST:db
+      - PMA_PORT:3300
+      - PMA_USER:root
+      - PMA_PASSWORD=root
+      - UPLOAD_LIMIT=300M
+      - MAX_EXECUTION_TIME=1200
+      - MEMORY_LIMIT=4096M
+    networks:
+      - allInOne
+
